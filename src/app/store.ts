@@ -39,11 +39,24 @@ export interface AppState {
    Zustand Store
 ======================= */
 const nowISO = () => new Date().toISOString();
+
+let initialUser: User | null = null;
+if (typeof window !== "undefined") {
+  const storedUser = localStorage.getItem("currentUser");
+  if (storedUser) {
+    try {
+      initialUser = JSON.parse(storedUser);
+    } catch {
+      initialUser = null;
+    }
+  }
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
   /* -------------------
      STATE
   ------------------- */
-  currentUser: null,
+  currentUser: initialUser,
   users,
   projects,
   activities,
@@ -71,44 +84,65 @@ export const useAppStore = create<AppState>((set, get) => ({
       return false;
     }
 
-    
-const updatedUser = { ...user, lastLogin: nowISO(), updatedAt: nowISO()};
+    const updatedUser = { ...user, lastLogin: nowISO(), updatedAt: nowISO() };
 
-  const loginActivity: Activity = {
-    id: crypto.randomUUID(),
-    userId: user.id,
-    action: "USER_LOGIN",
-    entityType: "USER",
-    entityId: user.id,
-    timestamp: nowISO(),
-    metadata: { name: user.name, email: user.email },
-  };
+    const loginActivity: Activity = {
+      id: crypto.randomUUID(),
+      userId: user.id,
+      action: "USER_LOGIN",
+      entityType: "USER",
+      entityId: user.id,
+      timestamp: nowISO(),
+      metadata: { name: user.name, email: user.email },
+    };
 
-  // ✅ Single set call for all updates
-  set((state) => ({
-    currentUser: updatedUser,
-    users: state.users.map(u => u.id === user.id ? updatedUser : u),
-    activities: [...state.activities, loginActivity],
-  }));
+    // ✅ Single set call for all updates
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+    set((state) => ({
+      currentUser: updatedUser,
+      users: state.users.map((u) => (u.id === user.id ? updatedUser : u)),
+      activities: [...state.activities, loginActivity],
+    }));
 
     // login successfully
     return true;
   },
   // Set or switch current user
-  setCurrentUser: (user) => set({ currentUser: user }),
+  setCurrentUser: (user) => {
+    if (user) {
+      localStorage.setItem("currentUser", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("currentUser");
+    }
+    set({ currentUser: user });
+  },
 
   // Add a new user
   addUser: (user) => set((state) => ({ users: [...state.users, user] })),
 
   // Update existing user by ID
   updateUser: (id, data) =>
-    set((state) => ({
-      users: state.users.map((u) =>
-        u.id === id
-          ? { ...u, ...data, updatedAt: new Date().toISOString() }
-          : u,
-      ),
-    })),
+    set((state) => {
+      const updatedUsers = state.users.map((u) =>
+        u.id === id ? { ...u, ...data, updatedAt: nowISO() } : u,
+      );
+
+      // If current user is the one being updated, sync localStorage
+      let updatedCurrentUser = state.currentUser;
+      if (state.currentUser?.id === id) {
+        updatedCurrentUser = {
+          ...state.currentUser,
+          ...data,
+          updatedAt: nowISO(),
+        };
+        localStorage.setItem("currentUser", JSON.stringify(updatedCurrentUser));
+      }
+
+      return {
+        users: updatedUsers,
+        currentUser: updatedCurrentUser,
+      };
+    }),
 
   // Add a new project
   addProject: (project) =>
@@ -129,14 +163,19 @@ const updatedUser = { ...user, lastLogin: nowISO(), updatedAt: nowISO()};
     set((state) => ({ activities: [...state.activities, activity] })),
 
   // Reset entire store to initial seed
-  resetStore: () =>
+  resetStore: () => {
+    localStorage.removeItem("currentUser");
     set({
       currentUser: users.find((u) => u.id === USER_IDS.SUPER_ADMIN) || null,
       users,
       projects,
       activities,
-    }),
+    });
+  },
 
   // Logout current user
-  logout: () => set({ currentUser: null }),
+  logout: () => {
+    localStorage.removeItem("currentUser");
+    set({ currentUser: null });
+  },
 }));

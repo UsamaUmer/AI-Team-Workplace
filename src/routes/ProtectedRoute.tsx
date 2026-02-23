@@ -1,20 +1,21 @@
 import { Navigate } from "react-router-dom";
 import { useAppStore } from "../app/store";
 
-
 import { type ReactNode } from "react";
+
 interface ProtectedRoutesProps {
   children: ReactNode;
 }
 
-function ProtectedRoute({children}: ProtectedRoutesProps) {
+function ProtectedRoute({ children }: ProtectedRoutesProps) {
+  const currentUser = useAppStore((state) => {
+    return state.currentUser;
+  });
 
-    const store = useAppStore.getState();
-    if(store.currentUser !== null){
-        return <Navigate to='/dashboard'></Navigate>
-    }
-
-  return <>{children}</>
+  if (!currentUser || currentUser.status !== "ACTIVE") {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 }
 
-export default ProtectedRoute
+export default ProtectedRoute;

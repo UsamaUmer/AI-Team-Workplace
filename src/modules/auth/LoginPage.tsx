@@ -1,17 +1,24 @@
 import { useState } from "react";
-
 import { useAppStore } from "../../app/store";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const store = useAppStore.getState();
+  const navigate = useNavigate();
+  const login = useAppStore((state) => state.login);
 
-  function handleSubmit(e: any) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    store.login(email, password);
-    console.log(store.currentUser);
+
+    const success = login(email, password);
+    if (!success) {
+      setError("Invalid credentials or user not active.");
+      return;
+    }
+    navigate("/dashboard");
   }
 
   return (
@@ -20,16 +27,25 @@ function LoginPage() {
         type="email"
         placeholder="Enter your Email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (error) setError("");
+        }}
+        required
       />
-      {email}
+      {/* {email} */}
       <input
         type="password"
         placeholder="Enter Password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) => {
+          setPassword(e.target.value);
+          if (error) setError("");
+        }}
+        required
       />
-      {password}
+      {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+      {/* {password} */}
       <button type="submit">Submit</button>
     </form>
   );

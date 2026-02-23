@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
-import App from "./App.tsx";
+import AppRoutes from "./app/routes.tsx";
 
 /// testing login function of store
 // import { useAppStore } from "./app/store.ts";
@@ -12,9 +12,9 @@ import App from "./App.tsx";
 // console.log(useAppStore.getState().currentUser);
 
 createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <StrictMode>
-      <App />
-    </StrictMode>
-  </BrowserRouter>,
+  <StrictMode>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  </StrictMode>,
 );
