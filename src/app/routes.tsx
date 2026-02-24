@@ -3,13 +3,18 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import DashboardPage from "../modules/dashboard/DashboardPage";
 import AuthLayout from "../components/layout/AuthLayout";
+import UsersPage from "../modules/users/UsersPage";
+import SettingsPage from "../modules/settings/SettingsPage";
+import ProjectsPage from "../modules/projects/ProjectsPage";
 
 import { useAppStore } from "./store";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 
 export default function AppRoutes() {
-  const currentUser = useAppStore((state) => {return state.currentUser});
+  const currentUser = useAppStore((state) => {
+    return state.currentUser;
+  });
 
   return (
     <Routes>
@@ -17,11 +22,7 @@ export default function AppRoutes() {
       <Route
         path="/login"
         element={
-          currentUser ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <AuthLayout />
-          )
+          currentUser ? <Navigate to="/dashboard" replace /> : <AuthLayout />
         }
       >
         <Route index element={<LoginPage />} />
@@ -37,6 +38,9 @@ export default function AppRoutes() {
         }
       >
         <Route index element={<DashboardPage />} />
+        <Route path="users" element={<UsersPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
 
       {/* FALLBACK */}

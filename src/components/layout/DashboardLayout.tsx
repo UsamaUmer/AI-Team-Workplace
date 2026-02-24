@@ -1,11 +1,20 @@
 import { Outlet } from "react-router-dom";
 
+import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
+
 function DashboardLayout() {
   return (
-    <div>
-      <h2>Dashboard Layout</h2>
-      <hr></hr>
-      <Outlet />
+    <div className="layout" style={{ display: "flex", height: "100vh" }}>
+      <Sidebar />
+
+      <div className="main" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Topbar />
+
+        <div className="content" style={{ flex: 1, padding: "20px" }}>
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }
