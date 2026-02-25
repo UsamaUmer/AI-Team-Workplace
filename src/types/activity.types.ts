@@ -6,6 +6,8 @@ export type ActivityAction =
   | "USER_CREATED"
   | "USER_UPDATED"
   | "USER_SUSPENDED"
+  | "USER_ACTIVATED"
+  | "USER_DELETED"
   | "USER_INVITED"
   | "ROLE_CHANGED"
   | "PROJECT_CREATED"
