@@ -24,12 +24,12 @@ export interface AppState {
   ------------------- */
   login: (email: string, password: string) => boolean;
   setCurrentUser: (user: User | null) => void;
-  addUser: (user: User) => void;
+  createUser: (user: User) => void;
   updateUser: (id: string, data: Partial<User>) => void;
 
   addProject: (project: Project) => void;
   updateProject: (id: string, data: Partial<Project>) => void;
-
+  deleteUser: (id: string) => void;
   addActivity: (activity: Activity) => void;
   resetStore: () => void;
   logout: () => void;
@@ -107,6 +107,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     // login successfully
     return true;
   },
+  deleteUser: (id) =>
+    set((state) => ({ users: state.users.filter((u) => u.id !== id) })),
   // Set or switch current user
   setCurrentUser: (user) => {
     if (user) {
@@ -118,7 +120,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   // Add a new user
-  addUser: (user) => set((state) => ({ users: [...state.users, user] })),
+  createUser: (user) => set((state) => ({ users: [...state.users, user] })),
 
   // Update existing user by ID
   updateUser: (id, data) =>

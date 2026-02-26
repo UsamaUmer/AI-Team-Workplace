@@ -1,25 +1,37 @@
 import UsersTable from "./components/UsersTable";
-import { useEffect } from "react";
+import UserFormModal from "./components/UserFormModal";
+import { useState } from "react";
 
 import { useHasPermission } from "../../hooks/useHasPermission";
-import { useNavigate } from "react-router-dom";
 
 function UsersPage() {
-  const navigate = useNavigate();
   const canViewUsers = useHasPermission("VIEW_USERS");
+  const canCreateUser = useHasPermission("CREATE_USER");
 
-  useEffect(() => {
-    if (!canViewUsers) {
-      navigate("/dashboard");
-    }
-  }, [canViewUsers, navigate]);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const openCreateModal = () => setIsCreateOpen(true);
+  const closeCreateModal = () => setIsCreateOpen(false);
+
+
 
   if (!canViewUsers) return null;
-  
+
   return (
     <div>
-      <h2>Users</h2>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h2>Users</h2>
+        {canCreateUser && (
+          <button
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+            onClick={openCreateModal}
+          >
+            + Create User
+          </button>
+        )}
+      </div>
       <UsersTable></UsersTable>
+      <UserFormModal open={isCreateOpen} onClose={closeCreateModal} />
     </div>
   );
 }

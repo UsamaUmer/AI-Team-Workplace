@@ -6,6 +6,7 @@ import AuthLayout from "../components/layout/AuthLayout";
 import UsersPage from "../modules/users/UsersPage";
 import SettingsPage from "../modules/settings/SettingsPage";
 import ProjectsPage from "../modules/projects/ProjectsPage";
+import PermissionRoute from "./PermissionRoute";
 
 import { useAppStore } from "./store";
 
@@ -38,7 +39,14 @@ export default function AppRoutes() {
         }
       >
         <Route index element={<DashboardPage />} />
-        <Route path="users" element={<UsersPage />} />
+        <Route
+          path="users"
+          element={
+            <PermissionRoute permission="VIEW_USERS">
+              <UsersPage />
+            </PermissionRoute>
+          }
+        />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

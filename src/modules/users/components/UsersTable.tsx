@@ -216,6 +216,7 @@ function UsersTable() {
   const currentUser = useAppStore((state) => state.currentUser);
   const updateUser = useAppStore((state) => state.updateUser);
   const addActivity = useAppStore((state) => state.addActivity);
+  const deleteUser = useAppStore((state)=> state.deleteUser);
 
   const canEdit = useHasPermission("EDIT_USER");
   const canDelete = useHasPermission("DELETE_USER");
@@ -244,7 +245,7 @@ function UsersTable() {
     setOpenId((prev) => (prev === id ? null : id));
   }
 
-  /// chaecking the last admin
+  /// checking the last admin
 
   function isLastAdmin(user: User): boolean {
     const admins = users.filter(
@@ -258,7 +259,7 @@ function UsersTable() {
     if (!currentUser) return;
     if (user.id === currentUser.id) {
       // alert("You cannot delete yourself");
-      alert(`${user.name} can not delte ${currentUser.name}`);
+      alert(`${user.name} can not delete ${currentUser.name}`);
       return;
     }
     if (isLastAdmin(user)) {
@@ -274,9 +275,7 @@ function UsersTable() {
   function confirmDelete() {
     if (!confirmUser || !currentUser) return;
 
-    useAppStore.setState((state) => ({
-      users: state.users.filter((u) => u.id !== confirmUser.id), // delteing user from store
-    }));
+    deleteUser(confirmUser.id);
 
     const activity: Activity = {
       id: crypto.randomUUID(),
@@ -296,6 +295,11 @@ function UsersTable() {
     if (!currentUser) return;
     if (user.id === currentUser.id) {
       alert("You cannot suspend yourself");
+      return;
+    }
+
+    if (user.role === "SUPER_ADMIN") {
+      alert("Super Admin cannot be suspended");
       return;
     }
 
@@ -537,7 +541,7 @@ const dropdownItemStyle: React.CSSProperties = {
   fontSize: "14px",
 };
 
-function getStatusBadgeStyle(status: string): React.CSSProperties {
+function getStatusBadgeStyle(status: User["status"]): React.CSSProperties {
   const baseStyle: React.CSSProperties = {
     padding: "4px 10px",
     borderRadius: "999px",
